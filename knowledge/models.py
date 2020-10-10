@@ -27,6 +27,7 @@ class KnowledgeItem(models.Model):
         KnowledgeBase, on_delete=models.SET_NULL, null=True,
         related_name='knowledge_list')
     question = models.CharField(max_length=512)
+    desc = models.CharField(max_length=512)
     created_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
