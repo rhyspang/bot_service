@@ -24,7 +24,8 @@ class KnowledgeItem(models.Model):
     )
 
     knowledge_base = models.ForeignKey(
-        KnowledgeBase, on_delete=models.SET_NULL, null=True)
+        KnowledgeBase, on_delete=models.SET_NULL, null=True,
+        related_name='knowledge_list')
     question = models.CharField(max_length=512)
     created_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True)
@@ -35,11 +36,13 @@ class KnowledgeItem(models.Model):
 
 class Answer(models.Model):
     knowledge_item = models.ForeignKey(
-        KnowledgeItem, on_delete=models.SET_NULL, null=True)
+        KnowledgeItem, on_delete=models.SET_NULL, null=True,
+        related_name='answers')
     content = models.TextField()
 
 
 class SimilarQuestion(models.Model):
     knowledge_item = models.ForeignKey(
-        KnowledgeItem, on_delete=models.SET_NULL, null=True)
+        KnowledgeItem, on_delete=models.SET_NULL, null=True,
+        related_name='similar_questions')
     content = models.TextField()
