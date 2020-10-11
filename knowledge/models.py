@@ -6,13 +6,19 @@ from django.db import models
 
 class KnowledgeBase(models.Model):
 
-    name = models.CharField(max_length=128)
-    shop_id = models.CharField(max_length=256)
+    name = models.CharField(max_length=128, unique=True)
+    shop_id = models.CharField(max_length=255, unique=True)
     created_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     running_status = models.BooleanField(default=True)
+    desc = models.CharField(max_length=512)
+
+    users = models.ManyToManyField(User, related_name='users')
+
+    class Meta:
+        ordering = ('-id',)
 
 
 class KnowledgeItem(models.Model):
@@ -27,12 +33,14 @@ class KnowledgeItem(models.Model):
         KnowledgeBase, on_delete=models.SET_NULL, null=True,
         related_name='knowledge_list')
     question = models.CharField(max_length=512)
-    desc = models.CharField(max_length=512)
     created_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     scope = models.IntegerField(choices=KNOWLEDGE_SCOPE)
+
+    class Meta:
+        ordering = ('-id',)
 
 
 class Answer(models.Model):

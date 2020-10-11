@@ -10,6 +10,7 @@ class KnowledgeBaseSerializer(serializers.ModelSerializer):
 
     knowledge_list = serializers.PrimaryKeyRelatedField(
         many=True, read_only=True)
+    users = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = models.KnowledgeBase
