@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from knowledge import models
+from bot_service.apps.knowledge import models
 
 
 # Serializers define the API representation.

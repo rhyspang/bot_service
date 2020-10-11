@@ -2,8 +2,8 @@
 from django.urls import path, include
 from rest_framework_nested import routers
 
-from knowledge.views import KnowledgeBaseViewSet
-from knowledge.views import KnowledgeItemViewSet
+from bot_service.apps.knowledge.views import KnowledgeBaseViewSet
+from bot_service.apps.knowledge.views import KnowledgeItemViewSet
 
 router = routers.SimpleRouter()
 router.register(r'knowledge_base', KnowledgeBaseViewSet)

@@ -3,14 +3,14 @@
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
-from response import standard_errors
+from bot_service.response import standard_errors
 
 
 class ServiceResponse(Response):
 
     def __init__(self, data=None, error='', status=None, template_name=None,
-                 message=standard_errors.MRDP_OK.message,
-                 code=standard_errors.MRDP_OK.code, headers=None,
+                 message=standard_errors.OK.message,
+                 code=standard_errors.OK.code, headers=None,
                  exception=False, content_type=None):
         """
         Alters the init arguments slightly.

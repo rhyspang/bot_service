@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'knowledge',
+    'bot_service.apps.knowledge.apps.KnowledgeConfig',
+    'bot_service.apps.user.apps.UserConfig',
 ]
 
 MIDDLEWARE = [
