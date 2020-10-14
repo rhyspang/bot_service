@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
@@ -15,6 +17,8 @@ class KnowledgeBaseViewSet(BaseViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = KnowledgeBase.objects.all()
     serializer_class = KnowledgeBaseSerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('name', 'shop_id', 'desc')
 
     @action(methods=['post'], detail=True, url_path='update_users',
             url_name='update_users')
