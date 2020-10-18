@@ -15,10 +15,16 @@ from bot_service.response.service_response import ServiceResponse as Response
 
 class KnowledgeBaseViewSet(BaseViewSet):
     permission_classes = (IsAuthenticated,)
-    queryset = KnowledgeBase.objects.all()
+    # queryset = KnowledgeBase.objects.all()
     serializer_class = KnowledgeBaseSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('name', 'shop_id', 'desc')
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return KnowledgeBase.objects.all()
+        else:
+            return self.request.user.knowledge_base_set.all()
 
     @action(methods=['post'], detail=True, url_path='update_users',
             url_name='update_users')
@@ -38,6 +44,8 @@ class KnowledgeItemViewSet(BaseViewSet):
 
     # queryset = KnowledgeItem.objects.all()
     serializer_class = KnowledgeItemSerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    search_fields = ('question', )
 
     def get_queryset(self):
         return KnowledgeItem.objects.filter(

@@ -6,7 +6,7 @@ from bot_service.apps.knowledge.views import KnowledgeBaseViewSet
 from bot_service.apps.knowledge.views import KnowledgeItemViewSet
 
 router = routers.SimpleRouter()
-router.register(r'knowledge_base', KnowledgeBaseViewSet)
+router.register(r'knowledge_base', KnowledgeBaseViewSet, basename='')
 
 knowledge_item_router = routers.NestedDefaultRouter(
     router, r'knowledge_base', lookup='knowledge_base')

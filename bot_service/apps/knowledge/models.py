@@ -16,7 +16,7 @@ class KnowledgeBase(models.Model):
     running_status = models.BooleanField(default=True)
     desc = models.CharField(max_length=512)
 
-    users = models.ManyToManyField(User, related_name='users')
+    users = models.ManyToManyField(User, related_name='knowledge_base_set')
 
     class Meta:
         ordering = ('-id',)
@@ -27,7 +27,7 @@ class KnowledgeItem(models.Model):
     KNOWLEDGE_SCOPE = (
         (0, '售前'),
         (1, '售中'),
-        (1, '售后'),
+        (2, '售后'),
     )
 
     knowledge_base = models.ForeignKey(

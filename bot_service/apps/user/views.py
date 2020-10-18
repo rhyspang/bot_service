@@ -28,6 +28,12 @@ def get_user_info(request):
     return Response(user_serializer.data)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    return Response()
+
+
 class FormatTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
