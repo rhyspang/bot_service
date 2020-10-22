@@ -21,4 +21,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api/auth/', include('bot_service.apps.user.urls')),
     path('api/knowledge/', include('bot_service.apps.knowledge.urls')),
+    path('api/model/', include('bot_service.apps.engine.urls')),
 ]
