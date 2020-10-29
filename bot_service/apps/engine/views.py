@@ -1,3 +1,7 @@
+import base64
+import json
+import logging
+
 from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
@@ -7,13 +11,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from bot_service.apps.engine.predictor import Predictor
-from bot_service.apps.knowledge.models import KnowledgeItem
+from bot_service.apps.knowledge.models import KnowledgeItem, KnowledgeBase
 from bot_service.apps.user.serializers import UserSerializer
 from bot_service.base_views import BaseViewSet
 from bot_service.response.service_response import ServiceResponse as Response
 
 
 predictor_dict = {}
+shop_map = {}
 
 
 class UserViewSet(BaseViewSet):
@@ -48,9 +53,15 @@ class FormatTokenObtainPairView(TokenObtainPairView):
 @api_view(['GET'])
 def train_model(request):
     global predictor_dict
+    global shop_map
     data = request.query_params
     knowledge_base_id = int(data['knowledge_base_id'])
     train_data = []
+    knowledge_base = KnowledgeBase.objects.get(pk=knowledge_base_id)
+    shop_map[knowledge_base.shop_id] = {
+        'kb_id': knowledge_base_id,
+        'name': knowledge_base.name
+    }
     for item in KnowledgeItem.objects.filter(knowledge_base_id=knowledge_base_id):
         train_data.append({
             'id': item.id,
@@ -67,3 +78,35 @@ def dialog(request):
     params = request.query_params
     predictor = predictor_dict[int(params['knowledge_base_id'])]
     return Response(predictor.predict(params['text']))
+
+
+@api_view(['POST'])
+@permission_classes([])
+def dialog_store(request):
+    global predictor_dict
+    global shop_map
+    data = request.query_params
+    raw_query = json.loads(base64.b64decode(data['query']).decode('gb2312'))
+    logging.info(raw_query)
+    to_user_id = raw_query['message']['from']['uid']
+    shop_id = raw_query['message']['to']['uid']
+    value2 = raw_query['message']['titan_msg_id'].split('#')[1]
+    from_shop_id = f'cs_{shop_id}_{value2}'
+
+    try:
+        content = predictor_dict[shop_map[shop_id]['kb_id']].predict(raw_query['message']['content'])
+        return Response({
+            'status': True,
+            'to_user_id': to_user_id,
+            'from_shop_id': from_shop_id,
+            'content': content,
+            'shop_id': shop_id
+        })
+    except Exception as e:
+        logging.error(e)
+        return Response({
+            'to_user_id': to_user_id,
+            'from_shop_id': from_shop_id,
+            'content': '',
+            'shop_id': shop_id
+        })

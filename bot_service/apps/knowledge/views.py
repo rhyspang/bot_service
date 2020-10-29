@@ -61,14 +61,15 @@ class KnowledgeItemViewSet(BaseViewSet):
     def export_csv(self, request, **kwargs):
         knowledge_set = self.get_queryset()
         # instance = self.get_object()
-        response = HttpResponse(content_type='text/csv; charset=gbk')
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
         writer = csv.writer(response)
         writer.writerow(['知识点编号', '标准问', '相似问', '答案', '分类'])
-        filename = 'knowledge.csv'
+        filename = 'knowledge'
         for index, knowledge in enumerate(knowledge_set, 1):
+            if index == 1:
+                filename = f'{filename}_{knowledge.knowledge_base.id}.csv'
             question_set = [knowledge.question]
-            filename = f'{filename}_{knowledge.knowledge_base.id}'
-            similar_questions = [item.content for item in knowledge.similar_questions.all()]
+            similar_questions = [item.content for item in knowledge.similar_questions.all()] or question_set
             answers = [item.content for item in knowledge.answers.all()]
             max_len = max(len(question_set), len(similar_questions), len(answers))
             for row in range(max_len):
@@ -78,7 +79,7 @@ class KnowledgeItemViewSet(BaseViewSet):
                 writer.writerow([index, question, similar_question, answer, knowledge.scope])
         logging.debug('filename: %s', filename)
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        return
+        return response
 
     @action(methods=['post'], detail=False, url_path='import_csv',
             url_name='import_csv')
@@ -88,7 +89,7 @@ class KnowledgeItemViewSet(BaseViewSet):
         knowledge_base = KnowledgeBase.objects.get(pk=kwargs['knowledge_base_pk'])
         csv_data = {}
         try:
-            decoded_file = file.read().decode('gbk')
+            decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
             for item in reader:
@@ -102,14 +103,14 @@ class KnowledgeItemViewSet(BaseViewSet):
                         'created_by': user,
                         'knowledge_base': knowledge_base
                     }
-                    if item['相似问']:
-                        csv_data[knowledge_index]['similar_questions'].append({
-                            'content': item['相似问']
-                        })
-                    if item['答案']:
-                        csv_data[knowledge_index]['answers'].append({
-                            'content': item['答案']
-                        })
+                if item['相似问']:
+                    csv_data[knowledge_index]['similar_questions'].append({
+                        'content': item['相似问']
+                    })
+                if item['答案']:
+                    csv_data[knowledge_index]['answers'].append({
+                        'content': item['答案']
+                    })
         except Exception as e:
             logging.exception(e)
             return Response(code=10001, message='文件格式错误，缺少' + str(e) + '字段')
