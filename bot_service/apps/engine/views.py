@@ -85,8 +85,8 @@ def dialog(request):
 def dialog_store(request):
     global predictor_dict
     global shop_map
-    data = request.query_params
-    raw_query = json.loads(base64.b64decode(data['query']).decode('gb2312'))
+    data = request.data
+    raw_query = json.loads(data['query'])
     logging.info(raw_query)
     to_user_id = raw_query['message']['from']['uid']
     shop_id = raw_query['message']['to']['uid']
@@ -95,18 +95,23 @@ def dialog_store(request):
 
     try:
         content = predictor_dict[shop_map[shop_id]['kb_id']].predict(raw_query['message']['content'])
+        status = bool(content)
+        response_text = content[0]['answer'];
         return Response({
-            'status': True,
+            'status': status,
             'to_user_id': to_user_id,
             'from_shop_id': from_shop_id,
-            'content': content,
-            'shop_id': shop_id
+            'content': response_text,
+            'shop_id': shop_id,
+            'shop_name': shop_map[shop_id]['name']
         })
     except Exception as e:
         logging.error(e)
         return Response({
+            'status': False,
             'to_user_id': to_user_id,
             'from_shop_id': from_shop_id,
             'content': '',
-            'shop_id': shop_id
+            'shop_id': shop_id,
+            'shop_name': '',
         })
