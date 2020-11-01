@@ -94,9 +94,9 @@ def dialog_store(request):
     from_shop_id = f'cs_{shop_id}_{value2}'
 
     try:
-        content = predictor_dict[shop_map[shop_id]['kb_id']].predict(raw_query['message']['content'])
+        content = predictor_dict[shop_map[shop_id]['kb_id']].predict(raw_query['message']['content'], mode=2)
         status = bool(content)
-        response_text = content[0]['answer'];
+        response_text = content[0]['answer']
         return Response({
             'status': status,
             'to_user_id': to_user_id,
