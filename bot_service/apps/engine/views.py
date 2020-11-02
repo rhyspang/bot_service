@@ -87,7 +87,7 @@ def dialog_store(request):
     global shop_map
     data = request.data
     raw_query = json.loads(data['query'])
-    logging.info(raw_query)
+    logging.debug("raw query: %s", raw_query)
     to_user_id = raw_query['message']['from']['uid']
     shop_id = raw_query['message']['to']['uid']
     value2 = raw_query['message']['titan_msg_id'].split('#')[1]
@@ -97,16 +97,19 @@ def dialog_store(request):
         content = predictor_dict[shop_map[shop_id]['kb_id']].predict(raw_query['message']['content'], mode=2)
         status = bool(content)
         response_text = content[0]['answer']
-        return Response({
+
+        response_data = {
             'status': status,
             'to_user_id': to_user_id,
             'from_shop_id': from_shop_id,
             'content': response_text,
             'shop_id': shop_id,
             'shop_name': shop_map[shop_id]['name']
-        })
+        }
+        logging.debug("response: %s", json.dumps(response_data))
+        return Response(response_data)
     except Exception as e:
-        logging.error(e)
+        logging.exception(e)
         return Response({
             'status': False,
             'to_user_id': to_user_id,

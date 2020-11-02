@@ -41,11 +41,11 @@ class Predictor(object):
             ]
         elif mode == 2:
             for item in self.train_data:
-                for question in item['question']:
+                for question in [item['question']] + item['similar_question']:
                     if text in question:
-                        return {
+                        return [{
                             'answer': random.choice(self.id_map[item['id']]),
                             'id': item['id'],
                             'score': 1
-                        }
+                        }]
         return []

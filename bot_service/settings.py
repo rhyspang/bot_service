@@ -12,10 +12,14 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import datetime
 from datetime import timedelta
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+LOG_FILE = './logs/'
+if not os.path.exists(LOG_FILE):
+    os.makedirs(LOG_FILE)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -27,7 +31,6 @@ SECRET_KEY = '#0k%nl)t%=@v@%=38sl7_1%5ex-obx2gcr^1(qock(jnkr@&5u'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -95,7 +98,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bot_service.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -128,7 +130,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -142,12 +143,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
 
 # allow cross domain access
 CORS_ALLOW_CREDENTIALS = True
@@ -184,4 +183,37 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'SLIDING_TOKEN_LIFETIME': timedelta(days=7),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    "formatters": {  # 定义了两种日志格式
+        "verbose": {  # 标准
+            "format": "%(levelname)s %(asctime)s %(module)s "
+                      "%(process)d %(thread)d %(message)s"
+        },
+        'simple': {  # 简单
+            'format': '[%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d]%(message)s'
+        },
+
+        'handlers': {
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.handlers.RotatingFileHandler',
+                'filename': LOG_FILE + 'bot.log',
+                'maxBytes': 1024 * 1024 * 200,
+                'backupCount': 10,
+                'formatter': 'simple',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+            "root": {"level": "DEBUG", "handlers": ["file"]},
+        },
+    }
 }
