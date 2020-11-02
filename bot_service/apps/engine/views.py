@@ -1,6 +1,8 @@
 import base64
 import json
 import logging
+import time
+import random
 
 from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
@@ -58,10 +60,14 @@ def train_model(request):
     knowledge_base_id = int(data['knowledge_base_id'])
     train_data = []
     knowledge_base = KnowledgeBase.objects.get(pk=knowledge_base_id)
-    shop_map[knowledge_base.shop_id] = {
-        'kb_id': knowledge_base_id,
-        'name': knowledge_base.name
-    }
+
+    shop_id_list = knowledge_base.shop_id.split(',')
+    shop_id_list = [item.strip() for item in shop_id_list]
+    for item in shop_id_list:
+        shop_map[item] = {
+            'kb_id': knowledge_base_id,
+            'name': knowledge_base.name
+        }
     for item in KnowledgeItem.objects.filter(knowledge_base_id=knowledge_base_id):
         train_data.append({
             'id': item.id,
@@ -107,6 +113,8 @@ def dialog_store(request):
             'shop_name': shop_map[shop_id]['name']
         }
         logging.debug("response: %s", json.dumps(response_data))
+        random_time = random.randint(1000, 5000)
+        time.sleep(random_time / 1000.)
         return Response(response_data)
     except Exception as e:
         logging.exception(e)
