@@ -213,7 +213,7 @@ LOGGING = {
                 'level': 'DEBUG',
                 'propagate': True,
             },
-            "root": {"level": "DEBUG", "handlers": ["file"]},
         },
+        "root": {"level": "DEBUG", "handlers": ["file"], 'propagate': True,},
     }
 }
