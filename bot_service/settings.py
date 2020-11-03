@@ -12,10 +12,14 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import datetime
 from datetime import timedelta
 from pathlib import Path
+from logging import config
 import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+config.fileConfig(os.path.join(BASE_DIR, 'bot_service/conf/log.conf'))
 
 LOG_FILE = './logs/'
 if not os.path.exists(LOG_FILE):

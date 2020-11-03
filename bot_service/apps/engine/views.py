@@ -1,4 +1,3 @@
-import base64
 import json
 import logging
 import time
@@ -19,6 +18,7 @@ from bot_service.base_views import BaseViewSet
 from bot_service.response.service_response import ServiceResponse as Response
 
 
+LOGGER = logging
 predictor_dict = {}
 shop_map = {}
 
@@ -93,33 +93,48 @@ def dialog_store(request):
     global shop_map
     data = request.data
     raw_query = json.loads(data['query'])
-    logging.debug("raw query: %s", raw_query)
+    LOGGER.debug("raw query: %s", raw_query)
     to_user_id = raw_query['message']['from']['uid']
     shop_id = raw_query['message']['to']['uid']
     value2 = raw_query['message']['titan_msg_id'].split('#')[1]
     from_shop_id = f'cs_{shop_id}_{value2}'
 
+    if shop_id not in shop_map:
+        LOGGER.debug('shop id not in shop map: %s', shop_id)
+        return Response({
+            'status': False,
+            'code': 1002,
+            'to_user_id': to_user_id,
+            'from_shop_id': from_shop_id,
+            'content': '',
+            'shop_id': shop_id,
+            'shop_name': '',
+        })
+
     try:
         content = predictor_dict[shop_map[shop_id]['kb_id']].predict(raw_query['message']['content'], mode=2)
         status = bool(content)
-        response_text = content[0]['answer']
+        response_text = content[0]['answer'] if status else ''
 
         response_data = {
             'status': status,
+            'code': 1000,
             'to_user_id': to_user_id,
             'from_shop_id': from_shop_id,
             'content': response_text,
             'shop_id': shop_id,
             'shop_name': shop_map[shop_id]['name']
         }
-        logging.debug("response: %s", json.dumps(response_data))
-        random_time = random.randint(1000, 5000)
+        LOGGER.debug("response: %s", json.dumps(response_data))
+        random_time = random.randint(1000, 4000)
+        LOGGER.debug('deny response time: %s', random_time)
         time.sleep(random_time / 1000.)
         return Response(response_data)
     except Exception as e:
-        logging.exception(e)
+        LOGGER.exception(e)
         return Response({
             'status': False,
+            'code': 1100,
             'to_user_id': to_user_id,
             'from_shop_id': from_shop_id,
             'content': '',

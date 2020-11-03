@@ -17,6 +17,8 @@ from bot_service.apps.knowledge.serializers import KnowledgeItemSerializer
 from bot_service.base_views import BaseViewSet
 from bot_service.response.service_response import ServiceResponse as Response
 
+LOGGER = logging
+
 
 class KnowledgeBaseViewSet(BaseViewSet):
     permission_classes = (IsAuthenticated,)
