@@ -93,11 +93,13 @@ def dialog_store(request):
     global shop_map
     data = request.data
     raw_query = json.loads(data['query'])
-    LOGGER.debug("raw query: %s", raw_query)
+    LOGGER.debug("raw query: %s", json.dumps(raw_query))
     to_user_id = raw_query['message']['from']['uid']
     shop_id = raw_query['message']['to']['uid']
     value2 = raw_query['message']['titan_msg_id'].split('#')[1]
     from_shop_id = f'cs_{shop_id}_{value2}'
+    query_content = raw_query['message']['content']
+    LOGGER.debug('query text: %s', query_content)
 
     if shop_id not in shop_map:
         LOGGER.debug('shop id not in shop map: %s', shop_id)
@@ -109,21 +111,33 @@ def dialog_store(request):
             'content': '',
             'shop_id': shop_id,
             'shop_name': '',
+            'msg': f'no shop config: {shop_id}'
         })
 
     try:
-        content = predictor_dict[shop_map[shop_id]['kb_id']].predict(raw_query['message']['content'], mode=2)
-        status = bool(content)
+        predictor = predictor_dict[shop_map[shop_id]['kb_id']]
+        content, status = predictor.predict(query_content, mode=3)
         response_text = content[0]['answer'] if status else ''
 
+        if status:
+            LOGGER.debug('response text: %s', response_text)
+            code = 1000
+            score = content[0]['score']
+            msg = 'ok'
+        else:
+            code = 1001
+            score = 0
+            msg = 'no knowledge match'
         response_data = {
             'status': status,
-            'code': 1000,
+            'code': code,
             'to_user_id': to_user_id,
             'from_shop_id': from_shop_id,
             'content': response_text,
             'shop_id': shop_id,
-            'shop_name': shop_map[shop_id]['name']
+            'shop_name': shop_map[shop_id]['name'],
+            'msg': msg,
+            'score': score
         }
         LOGGER.debug("response: %s", json.dumps(response_data))
         random_time = random.randint(1000, 4000)
@@ -140,4 +154,5 @@ def dialog_store(request):
             'content': '',
             'shop_id': shop_id,
             'shop_name': '',
+            'msg': 'unknown error'
         })

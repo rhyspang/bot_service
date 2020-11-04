@@ -91,7 +91,12 @@ class KnowledgeItemViewSet(BaseViewSet):
         knowledge_base = KnowledgeBase.objects.get(pk=kwargs['knowledge_base_pk'])
         csv_data = {}
         try:
-            decoded_file = file.read().decode('utf-8')
+            try:
+                decoded_file = file.read().decode('utf-8')
+            except Exception as e:
+                LOGGER.exception(e)
+                LOGGER.debug('try with utf-8 decode. failed. try gbk')
+                decoded_file = file.read().decode('gbk')
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
             for item in reader:
