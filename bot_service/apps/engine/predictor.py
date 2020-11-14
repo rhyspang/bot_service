@@ -35,7 +35,7 @@ class Predictor(object):
         for item in self.train_data:
             hit = False
             for question in [item['question']] + item['similar_question']:
-                if text in question:
+                if question in text:
                     hit = True
                     break
             scores.append((item['id'], int(hit)))

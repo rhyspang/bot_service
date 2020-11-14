@@ -15,7 +15,6 @@ from pathlib import Path
 from logging import config
 import os
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -49,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'bot_service.apps.knowledge.apps.KnowledgeConfig',
     'bot_service.apps.user.apps.UserConfig',
+    # 'bot_service.apps.engine.apps.EngineConfig',
 ]
 
 MIDDLEWARE = [

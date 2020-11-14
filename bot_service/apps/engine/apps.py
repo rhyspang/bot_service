@@ -1,4 +1,8 @@
+import logging
+
 from django.apps import AppConfig
+
+LOGGER = logging
 
 
 class EngineConfig(AppConfig):

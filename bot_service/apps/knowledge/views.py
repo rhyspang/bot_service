@@ -63,7 +63,7 @@ class KnowledgeItemViewSet(BaseViewSet):
     def export_csv(self, request, **kwargs):
         knowledge_set = self.get_queryset()
         # instance = self.get_object()
-        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response = HttpResponse(content_type='application/octet-stream; charset=gbk')
         writer = csv.writer(response)
         writer.writerow(['知识点编号', '标准问', '相似问', '答案', '分类'])
         filename = 'knowledge'
@@ -91,12 +91,13 @@ class KnowledgeItemViewSet(BaseViewSet):
         knowledge_base = KnowledgeBase.objects.get(pk=kwargs['knowledge_base_pk'])
         csv_data = {}
         try:
+            raw_data = file.read()
             try:
-                decoded_file = file.read().decode('utf-8')
+                decoded_file = raw_data.decode('utf-8')
             except Exception as e:
                 LOGGER.exception(e)
                 LOGGER.debug('try with utf-8 decode. failed. try gbk')
-                decoded_file = file.read().decode('gbk')
+                decoded_file = raw_data.decode('gbk')
             io_string = io.StringIO(decoded_file)
             reader = csv.DictReader(io_string)
             for item in reader:
